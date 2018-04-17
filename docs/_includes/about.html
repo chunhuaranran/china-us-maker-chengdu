@@ -10,11 +10,11 @@
     <!--<div><img src="{{ "/assets/img/img_1.png" | prepend: site.baseurl }}" width="50%" height="50%"/><p>Figure 1: Decision tree example</p></div>-->
     
     <h5> 大赛流程 </h5>
-    <div align="center">  
-      <ul align="left"> 
+    <div align="left">  
+      <ul align="center"> 
         <li>第一阶段：大赛启动、参赛选手报名和分赛区选拔赛。</li>
         <li>第二阶段：决赛入围团队优化作品。</li>
-        <li>第三阶段：2018中美青年创客⼤赛决赛。</li>
+        <li>第三阶段：2018中美青年创客大赛决赛。</li>
       </ul>
     </div>
     <!--<p align="left"> Different algorithms can be used to learn a decision tree from training data set. CuDB uses ID3 learning to construct decision trees.
@@ -27,10 +27,21 @@
     <div><img src="{{ "/assets/img/id3.png" | prepend: site.baseurl }}" width="50%" height="50%"/><p>Figure 2: ID3 pseudocode</p></div>
    
     <h5> 参赛作品要求 </h5>
-    <p align="left"> A single decision tree is a weak predictor and has its limitations. Gradient boosting is the process of 
+    <div align="left">  
+      <ul align="center"> 
+        <li>1.竞赛主题要求</li>
+        <p align="left"> 大赛倡导参赛者以促进社会可持续发展作为竞赛主题，关注社区、教育、环保、健康、能源、交通等领域，产生的创意需契合比赛主题，并通过结合创新理念和前沿科技，打造具有社会意义和产业价值的作品。</p>
+        <li>2.竞赛创新性要求</li>
+        <p align="left"> 大赛倡导参赛者以促进社会可持续发展作为竞赛主题，关注社区、教育、环保、健康、能源、交通等领域，产生的创意需契合比赛主题，并通过结合创新理念和前沿科技，打造具有社会意义和产业价值的作品。</p>
+        <li>3.作品呈现要求</li>
+        <li>4.作品原型要求基于开源软、硬件平台完成</li>
+        <li>5.技术平台要求</li>
+      </ul>
+    </div>
+    <!--<p align="left"> A single decision tree is a weak predictor and has its limitations. Gradient boosting is the process of 
       building multiple trees, combining weak predictors to form a strong predicted model. The intuition behind it is that the 
       next iteration corrects the previous error in order to improve overall reliability. The predict result is a weighted 
-      combination of each layer of the trees. A simple example is shown below in <i>Figure 3</i>.</p>
+      combination of each layer of the trees. A simple example is shown below in <i>Figure 3</i>.</p>-->
     <div><img src="{{ "/assets/img/gb_graph.png" | prepend: site.baseurl }}" width="60%" height="60%"/><p>Figure 3: Gradient boosting example</p></div>
  
     <p align="left"> The general steps of gradient boosting is first construct a naive initial tree. Then for each iteration, 
