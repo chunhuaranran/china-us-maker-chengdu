@@ -1,34 +1,25 @@
 <div class="container">
   <div class="user-details">
     <h3>比赛报名</h3>
-    <h5>报名流程</h5>
-    <p align="left">The benchmark result is obtained by running the code on the following platforms:</p>
-    <div align="left"> 
+    <h5>参赛资格</h5>
+    <p align="left">中美青年创客大赛对任何中国公民或美国公民、或在中国或美国获得永久合法居留权的个人开放。报名者年龄应在大赛报名起始日时符合）的员工，或上述任何实体的母公司或子公司的员工；(2)上述任何实体的任何一名员工的直系亲属。</p>
+    <!--<div align="left"> 
       <ul>
         <li>The sequential version is run on machines containing 8 core 3.2 GHz Intel Core i7 processors.</li>
         <li>The Cuda version is run on machines containing <a class="link" target="_blank" href="https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080/">NVIDIA GeForce GTX 1080</a> . </li>
       </ul>
-    </div>  
+    </div>  -->
     
-    <h5>Data Set Assumptions</h5>
-    
-    <p align="left">We obtained training and testing data sets from open source project 
-      <a class="link" target="_blank" href="https://github.com/dmlc/xgboost/">xgboost</a>. We slightly modified the original dataset to 
-      fit our needs. The largest training dataset contains 1 million entries with 130 attributes. The following are 2 
-      requirements on the dataset: </p>
+    <h5>参赛团队要求</h5>
     <div align="left"> 
       <ul>
-        <li>All attributes only take binary values, either it’s present or not. The response variable takes 1 and -1.</li>
-        <li>And the data set is sparse, meaning that less than half attributes are present for each data entry.</li>
+        <li>团队形式报名时，团队总人数不得超过5人（含领队），领队为团队的联系人和代表。</li>
+        <li>直至比赛正式开始前，领队可替换一位或多位成员，领队不可更换。</li>
+        <li>参赛者可参加到多个团队中，但至多作为其中一支团队的领队。</li>
       </ul>
     </div>  
-    <p align="left">The reason behind these 2 assumptions relates closely to how we represent input data set. In particular, 
-      we use a compressed data structure; instead of parsing all attributes for each data entry, we only keep the attributes 
-      that are present. This reduces data communication overhead and scales to larger data sets with memory constraints. More 
-      detailed explanation would be provided in the following sections. 
     
-    <h3>Approach</h3>
-    <h5>Sequential Vesion</h5>
+    <h5>报名流程</h5>
     
     <p align="left">We first construct a sequential version based on the Friedman’s 1999 paper of gradient boosting tree, 
       since our dataset is a binary value attribute dataset and our model is expected to be a binary classifier. 
