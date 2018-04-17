@@ -1,0 +1,181 @@
+<div class="container">
+  <div class="user-details">
+    <h3> Summary</h3>
+    <p align="left"> CuDB is a parallel implementation of gradient boosting decision tree in CUDA on the GPU. The main focus of the project includes:</p>
+    <div align="left"> 
+      <ul>
+        <li>Developing a sequential implementation of gradient boosting to serve as a baseline.</li>
+        <li>Experimenting with different approaches to optimize parallel implementation in Cuda on GPU.</li>
+        <li>Comparing and analyzing performance of different implementations against baseline sequential version to optimize our algorithm.
+</li>
+      </ul>
+    </div>
+    <h3> Background </h3>
+    <h5> Decision Tree </h5>
+    <p align="left"> In machine learning, a decision tree is a structure used as a predictive model 
+      to conclude about the item’s target value from a set of attributes. A classification tree takes a finite 
+      set of values that represent categories, whereas a regression tree can take continuous values to represent 
+      probability. An example of regression tree is shown below in <i>Figure 1</i>. Each node of the decision tree 
+      represents a test on a specific attribute such as age and gender, and the outcome of the result is represented 
+      by the branch of the node.  The leaf of the tree represents the corresponding target value assigned to the data entries that travel from the root to this particular leaf following the outcomes of testing the attributes. 
+</p>
+    <div><img src="{{ "/assets/img/img_1.png" | prepend: site.baseurl }}" width="50%" height="50%"/><p>Figure 1: Decision tree example</p></div>
+    
+    <h5> Learning a Decision Tree </h5>
+    <p align="left"> Different algorithms can be used to learn a decision tree from training data set. CuDB uses ID3 learning to construct decision trees.
+      The pseudocode is shown below in <i>Figure 2</i>. In each iteration, it traverses the set of unvisited attributes and choose select the best 
+      attribute that provides the most information. This is achieved by calculating the 
+      <a class="link" target="_blank" href="http://www.cs.cmu.edu/~roni/10601-slides/ch3.pdf">entropy</a> 
+      and choose the attribute with the largest information gain. Then it splits the data according to the selected attribute, 
+      and recurse on each of the subset. </p>
+    
+    <div><img src="{{ "/assets/img/id3.png" | prepend: site.baseurl }}" width="50%" height="50%"/><p>Figure 2: ID3 pseudocode</p></div>
+   
+    <h5> Gradient Boosting </h5>
+    
+    <p align="left"> A single decision tree is a weak predictor and has its limitations. Gradient boosting is the process of 
+      building multiple trees, combining weak predictors to form a strong predicted model. The intuition behind it is that the 
+      next iteration corrects the previous error in order to improve overall reliability. The predict result is a weighted 
+      combination of each layer of the trees. A simple example is shown below in <i>Figure 3</i>.</p>
+    <div><img src="{{ "/assets/img/gb_graph.png" | prepend: site.baseurl }}" width="60%" height="60%"/><p>Figure 3: Gradient boosting example</p></div>
+ 
+    <p align="left"> The general steps of gradient boosting is first construct a naive initial tree. Then for each iteration, 
+      we construct a new tree to best reduce error using gradient of the loss function. We calculate a weight &Gamma;
+      for the prediction result of this tree by minimizing the new loss. The final prediction output would be the weighted 
+      sum of results obtained in all iterations.</p>
+    
+    <div><img src="{{ "/assets/img/gradient_boosting.png" | prepend: site.baseurl }}" width="60%" height="60%"/><p>Figure 4: Gradient boosting pseudocode</p></div>
+ 
+    <p align="left">We identified some challenges with gradient boosting. First, a sequential version itself is hard to implement, 
+      requiring deep understanding of machine learning and sophisticated math operations. We decided to use our implementation as baseline. 
+      Second, we need to identify potential places to paralize. Building different levels is purely sequential, but there is significant 
+      room for parallelization in constructing individual trees. Constructing a decision tree in each iteration requires heavy computation 
+      since we need to examine all attributes of all data entries. However, the workload is relatively balanced in this operation. The last 
+      concern is the reprentation of data set, as in real world application it is quite large. </p>
+    
+    <h3>Preliminary Requirements</h3>
+    <h5>Platform</h5>
+    <p align="left">The benchmark result is obtained by running the code on the following platforms:</p>
+    <div align="left"> 
+      <ul>
+        <li>The sequential version is run on machines containing 8 core 3.2 GHz Intel Core i7 processors.</li>
+        <li>The Cuda version is run on machines containing <a class="link" target="_blank" href="https://www.nvidia.com/en-us/geforce/products/10series/geforce-gtx-1080/">NVIDIA GeForce GTX 1080</a> . </li>
+      </ul>
+    </div>  
+    
+    <h5>Data Set Assumptions</h5>
+    
+    <p align="left">We obtained training and testing data sets from open source project 
+      <a class="link" target="_blank" href="https://github.com/dmlc/xgboost/">xgboost</a>. We slightly modified the original dataset to 
+      fit our needs. The largest training dataset contains 1 million entries with 130 attributes. The following are 2 
+      requirements on the dataset: </p>
+    <div align="left"> 
+      <ul>
+        <li>All attributes only take binary values, either it’s present or not. The response variable takes 1 and -1.</li>
+        <li>And the data set is sparse, meaning that less than half attributes are present for each data entry.</li>
+      </ul>
+    </div>  
+    <p align="left">The reason behind these 2 assumptions relates closely to how we represent input data set. In particular, 
+      we use a compressed data structure; instead of parsing all attributes for each data entry, we only keep the attributes 
+      that are present. This reduces data communication overhead and scales to larger data sets with memory constraints. More 
+      detailed explanation would be provided in the following sections. 
+    
+    <h3>Approach</h3>
+    <h5>Sequential Vesion</h5>
+    
+    <p align="left">We first construct a sequential version based on the Friedman’s 1999 paper of gradient boosting tree, 
+      since our dataset is a binary value attribute dataset and our model is expected to be a binary classifier. 
+      This particular model has been discussed in Friedman’s paper. In its paper, Friedman proposed one-step Newton-Raphson 
+      approximation of the linear optimization of the loss function. Pseudo-code is provided in <i>Figure5</i>. We directly implemented that approximation since it would 
+      take less time than computing the whole gradient of all possible outcome and selecting the best one from it. </p>
+
+    <p align="left">The construction algorithm of decision tree is based on pseudo-code provided by 10-701 course, 
+      and we are using entropy approach (ID3 algorithm) to select the best attribute from whole dataset in each iteration. </p>
+    
+    <div><img src="{{ "/assets/img/gradientboosting.png" | prepend: site.baseurl }}" width="50%" height="50%"/><p>Figure 5: Gradient boosting with approximation pseudocode</p></div>
+ 
+    <h5>Parallel Attempt 1</h5>
+    <p align="left"> In the first attempt of parallelization with CUDA, we simply translate the algorithm directly into 
+      CUDA version. We have carefully analyzed the program and we discovered that our approach should be different from 
+      previous <a class="link" href="http://zhanpengfang.github.io/418home.html" target="_blank">year project</a> approach. They are using thread parallelization during construction of a decision tree. 
+      Such a top-down approach would provide great parallelization on CPU threads with OpenMP. However, since gradient 
+      boosting is construct based on weak decision trees that has lower levels, the same top-down approach would waste 
+      most of the computing power provided by CUDA and GTX1080. Thus we need to figure out a new data parallel approach. 
+      We decided to store Data in a huge GPU array of 130 attributes for each line. Each CUDA thread should read data 
+      through bias or indexing of that array. Except the second step in GDBT main loop body, all other three steps are 
+      loosely connected. They are suitable to be directly compute through function mapping. The sum of values are done 
+      with prefix-sum like reduction kernel. For building decision tree, we use extra two data length int array to represent 
+      as mask of values for each decision node. This would avoid the necessity of copying data and distribute new copy 
+      as we have done in the sequential version.</p>
+
+     <p align="left"> However, during the implementation, we have realized this approach does not provide good parallelization. 
+      The data communication overhead between GBDT steps area high, and each step is mapping their functions to data 
+      for only one purpose, which leads to low compute ratio. Furthermore, the way we storing the data consumes lots of 
+      memory, but lots of them are only access as an indicator of having or not having an attribute. Therefore, we made 
+      several improvements and have a different version of parallelization.</p>
+
+    <h5>Parallel Attempt 2</h5>
+    <p align="left">In second version of CUDA parallelization, we have done several things to improve the parallelization 
+      of our model. The first thing we do is de-code the algorithm into tiny compute steps to determine potential 
+      parallelization in each steps. Thus we figured out with the approximate approach, we are able to compute GBDT 
+      loop body step 3, 4 and step 1 of next loop with one reduction and one mapper function. We also figured out during 
+      the construction of the tree, several components could be calculating at the same time, since they do not have 
+      dependency of each other. Thus we used a single reduction to compute four different attributes to burst the 
+      construction of decision tree. </p>
+    
+    <p align="left">We also changed our data representation, for we have the binary attribute dataset, we could infer 
+      the value of attributes by only storing the data that have positive attributes. Thus the data set has been reduced 
+      to less than half of the original dataspace. We also stored all intermediate result in the extra few slots of dataline,
+      which reduce the communication overhead. Each step only need to access those intermediate result they needed from 
+      the mutually agreed position of each dataline. </p>
+    
+    <p align="left">However, even the improvement significantly speed up our code, we are also introduced new bottleneck 
+      into our code. In this version, each thread need to sequentially loop through the entire attribute list to figure out 
+      whether a particular attribute is positive or not. Thus we modified our program the third time to deal with newly 
+      introduced bottleneck.</p>
+    
+    <h5>Parallel Attempt 3</h5>
+    <p align="left">We observed that in the dataset, all attributes are stored in a ascending order. Thus we would be 
+      able to use Binary search to improve the speed up of finding attributes from the current dataline. </p>
+    
+    <p align="left">After we did this improvement, we analyzed our code again, but we haven’t be able to figure out 
+      other point for improving parallelization under current algorithm.</p>
+  
+    <h3>Results</h3>
+    <p align="left">The final result met our expectation. Figure 6 shows how our cuda version code compare to the 
+      sequential version code. With increasing of data, cuda shows remarkable parallelization ability and it could 
+      achieve about 160x speed up with 1 million dataset. </p>
+    
+    <p align="left">We have further breakdown the the time of our current cuda model in 1 million dataset to determine 
+      the bottleneck of our code. As shown in Figure 7 , no matter how many data is request for copy from host memory 
+      to device memory, the CUDA memory copy time of the data does not change much. Most of the time is consumed by 
+      building the model, since we have already parallelized the current algorithm, to improve the model building time, 
+      it could be only done by adopting faster algorithms.</p>
+    
+    <p align="left">Distributed GBDT library xgboost does have a CUDA plugin available. However we cannot use it since it 
+      cannot compile without cmake. Based on their introductory material, we only know it has ability to execute 1 million 
+      records of 50 column in 500 iterations in 193 seconds. Our dataset does not have too much residuals, and it would left 
+      with extreme small residuals, which would be considered as zero after 25 iterations. Thus with our approach, and the 
+      dataset, we would only need 22 seconds to execute. </p>
+
+    <div><img src="{{ "/assets/img/chart.png" | prepend: site.baseurl }}" width="70%" height="70%"/><p>Figure 6: Performance analysis and comparison</p></div>
+    <div><img src="{{ "/assets/img/breakdown.png" | prepend: site.baseurl }}" width="70%" height="70%"/><p>Figure 7: Parallel implementation time breakdown</p></div>
+    
+    <h3>Further Research</h3>
+    <p align="left">In future research, it is possible to use other algorithms that consumes less time than our 
+      current algorithm which is based on Friedman 1999 paper. The paper came up with gradient boosting technique 
+      almost 20 years ago, more parallelizable approach would emerge in the passing years, thus GBDT could take less 
+      time than our approach. Such as the histogram GBDT algorithm could bring down the execution time even further. </p>
+    
+    <p align="left">Also, our current implementation is working on single GPU, with expansion of data, the size of  
+      dataset will exceed total GPU device memory. Therefore, in order to support larger datasets, CuDB could be extended 
+      to support either multiple GPU with a shared device memory or streamly computing of decision tree in single GPU.</p>
+    
+    <h3>References</h3>
+    <p align="left"><cite>Friedman, J. H. (1999). Greedy function approximation: A gradient boosting machine. Retrieved May 12, 2017, 
+      from <a class="link" target="_blank" href="http://projecteuclid.org/euclid.aos/1013203451">http://projecteuclid.org/euclid.aos/1013203451</a>.</cite></p>
+    <p align="left"><cite>Xing, E. (2015). Decision Tree. <a class="link" target="_blank" href="http://www.cs.cmu.edu/~epxing/Class/10701/slides/DT15New.pdf">Lecture</a>.</cite></p>  
+    <p align="left"><cite>Scalable and Flexible Gradient Boosting. (n.d.). Retrieved May 12, 2017, from <a class="link" target="_blank" href="https://xgboost.readthedocs.io/en/latest/">https://xgboost.readthedocs.io/en/latest</a>.</cite></p> 
+    <p align="left"><cite>Gradient boosting. (2017, April 30). Retrieved May 12, 2017, from <a class="link" target="_blank" href="https://en.wikipedia.org/wiki/Gradient_boosting">https://en.wikipedia.org/wiki/Gradient_boosting</a>.</cite></p> 
+  </div>
+</div>
