@@ -1,6 +1,7 @@
 ## How to Use This Theme
 Just go ahead and read up on [how to install Jekyll](https://jekyllrb.com/). It's not too hard I promise!
 
+Download this repository [here](https://github.com/iwiedenm/jekyll-theme-massively-src/archive/master.zip) and save it to any folder you want.
 
 Open a terminal window or a command line and ```cd``` to that location.
 
