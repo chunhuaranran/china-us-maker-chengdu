@@ -1,7 +1,7 @@
 ﻿# Site settings
 title: China-US Young Maker Competition
 subTitle: 中美青年创客大赛
-description: 2018
+description: 2018成都分赛区
 # baseurl: "/particle" # the subpath of your site, e.g. /blog
 # url: "localhost:3000" # the base hostname & protocol for your site e.g. http://willianjusten.com.br
 
@@ -10,9 +10,9 @@ username: 西南交通大学创客空间 中美青年创客交流中心
 user_description: ？
 user_title: ？
 email: anon@anon.com
-twitter_username: 西南交通大学创客中心
-github_username:  西南交通大学创客中心
-gplus_username:  西南交通大学创客中心
+twitter_username: 西南交通大学创客空间
+github_username:  西南交通大学创客空间
+gplus_username:  西南交通大学创客空间
 
 # Google-analytics
 google-analytics:
